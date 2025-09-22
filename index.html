@@ -12,26 +12,29 @@
       color: #333;
     }
     header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
       background: #2f2f2f;
       color: #fff;
-      text-align: center;
-      padding: 2rem 1rem;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-    }
-    header p {
-      margin: 0.5rem 0;
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
     }
     nav {
-      margin-top: 1rem;
+      display: flex;
+      gap: 1.5rem;
     }
     nav a {
       color: #fff;
-      margin: 0 0.5rem;
       text-decoration: none;
       font-weight: bold;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #ffcc00;
     }
     section {
       max-width: 900px;
@@ -79,15 +82,13 @@
   </style>
 </head>
 <body>
+  <!-- Header with logo on left and options on right -->
   <header>
-    <h1>Satanand</h1>
-    <p>📞 +91-8744833781 | ✉️ <a href="mailto:satanand74@gmail.com" style="color:#fff;">E-Mail</a></p>
+    <div class="logo">Satanand</div>
     <nav>
-      <a href="#education">Education</a>
-      <a href="#skills">Skills</a>
-      <a href="#experience">Experience</a>
-      <a href="#projects">Projects</a>
-      <a href="#achievements">Achievements</a>
+      <a href="#articles">Articles</a>
+      <a href="#form">Form</a>
+      <a href="#connect">Connect</a>
     </nav>
   </header>
 
@@ -107,17 +108,17 @@
         10th (2018 – 2019)</li>
     </ol>
   </section>
+
   <section id="skills">
     <h2>Skills</h2>
     <p><strong>▪️Technical:</strong> SQL, Statistics, ETL, Data Visualization, Automation, NLP, 70 WPM Typing Speed</p>
     <p><strong>▪️Tools:</strong> Tableau, Power BI, Excel, Google Sheets, MySql</p>
     <p><strong>▪️Certifications:</strong>
       <ul>
-        <li>1. Completed Data Science Course from CodeWithHarry.com</li> <a href="https://github.com/Satanand-Ken/Satanand-Docs/blob/main/Data-Science%20Certificate.pdf" target="_blank">View Certificate</a>
+        <li>1. Completed Data Science Course from CodeWithHarry.com <a href="https://github.com/Satanand-Ken/Satanand-Docs/blob/main/Data-Science%20Certificate.pdf" target="_blank">View Certificate</a></li>
       </ul>
     </p>
   </section>
-
   <section id="experience">
     <h2>Experience</h2>
     <h3>Unique Auto Products Pvt Ltd. | MIS Executive</h3>
@@ -192,6 +193,7 @@
   </footer>
 </body>
 </html>
+
 
 
 
