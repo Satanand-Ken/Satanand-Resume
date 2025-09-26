@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pomodoro Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #1f2937;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .buttons button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      background: #374151;
+      color: white;
+      font-weight: bold;
+    }
+    .buttons button.active {
+      background: #ef4444;
+    }
+    .circle {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      margin: 0 auto;
+    }
+    svg {
+      transform: rotate(-90deg);
+    }
+    .time {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      font-weight: bold;
+    }
+    .controls {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .controls button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: #ef4444;
+      color: white;
+    }
+    .info {
+      margin-top: 1rem;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="buttons">
+      <button id="pomodoro" class="active">Pomodoro</button>
+      <button id="shortBreak">Short Break</button>
+      <button id="longBreak">Long Break</button>
+    </div>
+
+    <div class="circle">
+      <svg width="250" height="250">
+        <circle cx="125" cy="125" r="100" stroke="#374151" stroke-width="12" fill="none"/>
+        <circle id="progress" cx="125" cy="125" r="100" stroke="#ef4444" stroke-width="12" fill="none" stroke-linecap="round"
+          stroke-dasharray="628" stroke-dashoffset="628"/>
+      </svg>
+      <div class="time" id="time">25:00</div>
+    </div>
+
+    <div class="controls">
+      <button id="reset">⟳</button>
+      <button id="toggle">▶</button>
+    </div>
+
+    <div class="info">Completed Pomodoros: <span id="count">0</span></div>
+    <audio id="alarm" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+  </div>
+
+  <script>
+    const SESSION_DURATIONS = {
+      pomodoro: 25 * 60,
+      shortBreak: 5 * 60,
+      longBreak: 15 * 60
+    };
+
+    let sessionType = 'pomodoro';
+    let timeRemaining = SESSION_DURATIONS[sessionType];
+    let isActive = false;
+    let pomodoroCount = 0;
+    let interval = null;
+
+    const timeEl = document.getElementById('time');
+    const progressEl = document.getElementById('progress');
+    const countEl = document.getElementById('count');
+    const alarmEl = document.getElementById('alarm');
+    const toggleBtn = document.getElementById('toggle');
+    const resetBtn = document.getElementById('reset');
+
+    const buttons = {
+      pomodoro: document.getElementById('pomodoro'),
+      shortBreak: document.getElementById('shortBreak'),
+      longBreak: document.getElementById('longBreak'),
+    };
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    }
+
+    function updateDisplay() {
+      timeEl.textContent = formatTime(timeRemaining);
+      const total = SESSION_DURATIONS[sessionType];
+      const progress = ((total - timeRemaining) / total) * 628;
+      progressEl.style.strokeDashoffset = 628 - progress;
+    }
+
+    function startTimer() {
+      if (interval) return;
+      interval = setInterval(() => {
+        if (timeRemaining > 0) {
+          timeRemaining--;
+          updateDisplay();
+        } else {
+          clearInterval(interval);
+          interval = null;
+          handleNextSession();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(interval);
+      interval = null;
+    }
+
+    function toggleTimer() {
+      if (isActive) {
+        stopTimer();
+        toggleBtn.textContent = '▶';
+      } else {
+        startTimer();
+        toggleBtn.textContent = '⏸';
+      }
+      isActive = !isActive;
+    }
+
+    function resetTimer() {
+      stopTimer();
+      isActive = false;
+      timeRemaining = SESSION_DURATIONS[sessionType];
+      toggleBtn.textContent = '▶';
+      updateDisplay();
+    }
+
+    function selectSession(type) {
+      stopTimer();
+      isActive = false;
+      sessionType = type;
+      timeRemaining = SESSION_DURATIONS[type];
+      toggleBtn.textContent = '▶';
+      for (let key in buttons) {
+        buttons[key].classList.remove('active');
+      }
+      buttons[type].classList.add('active');
+      updateDisplay();
+    }
+
+    function handleNextSession() {
+      alarmEl.play();
+      if (sessionType === 'pomodoro') {
+        pomodoroCount++;
+        countEl.textContent = pomodoroCount;
+        if (pomodoroCount % 4 === 0) {
+          selectSession('longBreak');
+        } else {
+          selectSession('shortBreak');
+        }
+      } else {
+        selectSession('pomodoro');
+      }
+    }
+
+    toggleBtn.addEventListener('click', toggleTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    buttons.pomodoro.addEventListener('click', () => selectSession('pomodoro'));
+    buttons.shortBreak.addEventListener('click', () => selectSession('shortBreak'));
+    buttons.longBreak.addEventListener('click', () => selectSession('longBreak'));
+
+    updateDisplay();
+  </script>
+</body>
+</html>
